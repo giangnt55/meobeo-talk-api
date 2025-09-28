@@ -1,0 +1,105 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go build artifacts
+/bin/
+/_build/
+/dist/
+/release/
+
+# Go modules
+/go.sum
+/vendor/
+
+# If you use `go env GOPATH` inside repo or tools that vendor
+Gopkg.lock
+Gopkg.toml
+
+# IDEs and editors
+.vscode/
+.vscode/**
+
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Environment / secret files
+.env
+.env.*
+!.env.example
+
+# Logs and runtime files
+*.log
+logs/
+tmp/
+temp/
+*.pid
+
+# Coverage reports
+coverage.out
+*.cov
+
+# Docker
+docker-compose.override.yml
+docker-compose.*.yml
+docker-compose.*.yaml
+*.dockerignore
+
+# Kubernetes & Kustomize (if present)
+.kube/
+kustomization.yaml
+kustomization.yml
+
+# Terraform (if repository contains infra code)
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+override.tf
+override.tf.json
+*.tfvars
+
+# Generated files (migrations, build artifacts)
+migrations/*.sql  # if you keep migration source in repo but want to ignore generated SQL dumps
+/migrations/*.sql  # adjust if you use a different migrations folder
+*.sql.gz
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+
+# OS generated files
+ehthumbs.db
+Icon?
+
+# Editor swap / temp files
+*~
+.\#*
+*.swp
+*.swo
+
+# Git-crypt / secrets manager
+*.secret
+
+# Misc
+/.idea_modules/
+.vagrant/
+node_modules/
+
+# Optional: exclude test output directories often created by tools
+/test-results/
