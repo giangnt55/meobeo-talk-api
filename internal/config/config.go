@@ -55,8 +55,8 @@ func Load() (*Config, error) {
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
 			Port:     getEnv("DB_PORT", "5432"),
-			User:     getEnv("DB_USER", "postgres"),
-			Password: getEnv("DB_PASSWORD", ""),
+			User:     getEnv("DB_USERNAME", "postgres"),
+			Password: getEnv("DB_PASSWORD", "123"),
 			DBName:   getEnv("DB_NAME", "meobeo_talk"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
