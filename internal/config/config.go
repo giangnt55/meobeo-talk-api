@@ -2,57 +2,68 @@ package config
 
 import (
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	// App
-	AppName  string
-	AppEnv   string
-	AppPort  string
-	AppDebug bool
+	App      AppConfig
+	Server   ServerConfig
+	Database DatabaseConfig
+	JWT      JWTConfig
+}
 
-	// Database
-	DBHost     string
-	DBPort     string
-	DBDatabase string
-	DBUsername string
-	DBPassword string
-	DBSSLMode  string
-	DBTimezone string
+type AppConfig struct {
+	Name string
+	Env  string
+}
 
-	// JWT
-	JWTSecret      string
-	JWTExpireHours int
+type ServerConfig struct {
+	Port         string
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
+}
+
+type DatabaseConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	DBName   string
+	SSLMode  string
+}
+
+type JWTConfig struct {
+	Secret     string
+	ExpireTime time.Duration
 }
 
 func Load() (*Config, error) {
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		// Not fatal in production where env vars are set differently
-		if os.Getenv("APP_ENV") != "production" {
-			return nil, err
-		}
-	}
+	godotenv.Load()
 
 	return &Config{
-		AppName:  getEnv("APP_NAME", "MyAPI"),
-		AppEnv:   getEnv("APP_ENV", "development"),
-		AppPort:  getEnv("APP_PORT", "8080"),
-		AppDebug: getEnvBool("APP_DEBUG", true),
-
-		DBHost:     getEnv("DB_HOST", "localhost"),
-		DBPort:     getEnv("DB_PORT", "5432"),
-		DBDatabase: getEnv("DB_DATABASE", "myapp_db"),
-		DBUsername: getEnv("DB_USERNAME", "postgres"),
-		DBPassword: getEnv("DB_PASSWORD", ""),
-		DBSSLMode:  getEnv("DB_SSL_MODE", "disable"),
-		DBTimezone: getEnv("DB_TIMEZONE", "UTC"),
-
-		JWTSecret:      getEnv("JWT_SECRET", "secret"),
-		JWTExpireHours: getEnvInt("JWT_EXPIRE_HOURS", 24),
+		App: AppConfig{
+			Name: getEnv("APP_NAME", "meobeo-talk-api"),
+			Env:  getEnv("APP_ENV", "development"),
+		},
+		Server: ServerConfig{
+			Port:         getEnv("SERVER_PORT", "8080"),
+			ReadTimeout:  15 * time.Second,
+			WriteTimeout: 15 * time.Second,
+		},
+		Database: DatabaseConfig{
+			Host:     getEnv("DB_HOST", "localhost"),
+			Port:     getEnv("DB_PORT", "5432"),
+			User:     getEnv("DB_USER", "postgres"),
+			Password: getEnv("DB_PASSWORD", ""),
+			DBName:   getEnv("DB_NAME", "meobeo_talk"),
+			SSLMode:  getEnv("DB_SSLMODE", "disable"),
+		},
+		JWT: JWTConfig{
+			Secret:     getEnv("JWT_SECRET", "your-secret-key"),
+			ExpireTime: 24 * time.Hour,
+		},
 	}, nil
 }
 
@@ -60,20 +71,5 @@ func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
 	}
-	return defaultValue
-}
-
-func getEnvBool(key string, defaultValue bool) bool {
-	value := os.Getenv(key)
-	if value == "true" {
-		return true
-	} else if value == "false" {
-		return false
-	}
-	return defaultValue
-}
-
-func getEnvInt(key string, defaultValue int) int {
-	// Implementation for parsing int from env
 	return defaultValue
 }

@@ -1,14 +1,48 @@
-version: '3.8'
-
 services:
+  app:
+    image: golang:1.24-alpine
+    container_name: meobeo_app
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - /app/bin
+      - /app/vendor
+    command: sh -c "go run cmd/api/main.go"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - meobeo_network
+    ports:
+      - "8080:8080"
+
   postgres:
-    image: postgres:15-alpine
-    container_name: myapp_postgres
+    image: postgres:17-alpine
+    container_name: meobeo_postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: myapp_db
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-meobeo_talk}
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - meobeo_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: meobeo_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - meobeo_network
+
+volumes:
+  postgres_data:
+
+networks:
+  meobeo_network:
+    driver: bridge

@@ -1,43 +1,35 @@
 package logger
 
 import (
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-var log *logrus.Logger
+type Logger struct {
+	*zap.SugaredLogger
+}
 
-func Init(debug bool) {
-	log = logrus.New()
+func NewLogger(env string) *Logger {
+	var config zap.Config
 
-	if debug {
-		log.SetLevel(logrus.DebugLevel)
+	if env == "production" {
+		config = zap.NewProductionConfig()
+		config.EncoderConfig.TimeKey = "timestamp"
+		config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	} else {
-		log.SetLevel(logrus.InfoLevel)
+		config = zap.NewDevelopmentConfig()
+		config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	}
 
-	log.SetFormatter(&logrus.JSONFormatter{})
+	logger, _ := config.Build()
+	return &Logger{logger.Sugar()}
 }
 
-func Info(msg string, fields ...interface{}) {
-	if len(fields) > 0 {
-		log.WithFields(logrus.Fields{"data": fields}).Info(msg)
-	} else {
-		log.Info(msg)
-	}
+// --- Add wrapper methods ---
+func (l *Logger) Info(msg string, keysAndValues ...interface{}) {
+	l.Infow(msg, keysAndValues...)
 }
 
-func Error(msg string, err error) {
-	log.WithError(err).Error(msg)
-}
-
-func Fatal(msg string, err error) {
-	log.WithError(err).Fatal(msg)
-}
-
-func Debug(msg string, fields ...interface{}) {
-	if len(fields) > 0 {
-		log.WithFields(logrus.Fields{"data": fields}).Debug(msg)
-	} else {
-		log.Debug(msg)
-	}
+func (l *Logger) Error(msg string, keysAndValues ...interface{}) {
+	l.Errorw(msg, keysAndValues...)
 }

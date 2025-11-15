@@ -1,29 +1,33 @@
 package response
 
 import (
+	"meobeo-talk-api/internal/domain/entity"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type UserResponse struct {
-	ID        uuid.UUID `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
+	ID        int64     `json:"id"`
+	Username  string    `json:"username"`
 	Email     string    `json:"email"`
+	FullName  string    `json:"full_name"`
+	Avatar    *string   `json:"avatar"`
 	IsActive  bool      `json:"is_active"`
 	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type UserListResponse struct {
-	Users []UserResponse `json:"users"`
-	Meta  PaginationMeta `json:"meta"`
+type PaginatedUsers struct {
+	Data       []*UserResponse `json:"data"`
+	Pagination *Pagination     `json:"pagination"`
 }
 
-type PaginationMeta struct {
-	CurrentPage int   `json:"current_page"`
-	PerPage     int   `json:"per_page"`
-	Total       int64 `json:"total"`
-	TotalPages  int   `json:"total_pages"`
+func ToUserResponse(user *entity.User) *UserResponse {
+	return &UserResponse{
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		FullName:  user.FullName,
+		Avatar:    user.Avatar,
+		IsActive:  user.IsActive,
+		CreatedAt: user.CreatedAt,
+	}
 }
