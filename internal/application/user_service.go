@@ -49,7 +49,7 @@ func (s *userService) GetUsers(ctx context.Context, req *request.PaginationReque
 	}, nil
 }
 
-func (s *userService) GetUserByID(ctx context.Context, id int64) (*response.UserResponse, error) {
+func (s *userService) GetUserByID(ctx context.Context, id string) (*response.UserResponse, error) {
 	user, err := s.userRepo.FindByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
@@ -66,11 +66,11 @@ func (s *userService) CreateUser(ctx context.Context, req *request.CreateUserReq
 	}
 
 	user := &entity.User{
-		Username: req.Username,
-		Email:    req.Email,
-		Password: string(hashedPassword),
-		FullName: req.FullName,
-		IsActive: true,
+		Username:     req.Username,
+		Email:        req.Email,
+		PasswordHash: string(hashedPassword),
+		DisplayName:  &req.FullName,
+		IsActive:     true,
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {

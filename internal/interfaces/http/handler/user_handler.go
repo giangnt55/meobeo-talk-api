@@ -5,7 +5,6 @@ import (
 	"meobeo-talk-api/internal/dto/request"
 	"meobeo-talk-api/pkg/logger"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -57,15 +56,11 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path int true "User ID"
+// @Param id path uuid true "User ID"
 // @Success 200 {object} response.UserResponse
 // @Router /api/v1/users/{id} [get]
 func (h *UserHandler) GetUserByID(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
+	id := c.Param("id")
 
 	user, err := h.userService.GetUserByID(c.Request.Context(), id)
 	if err != nil {

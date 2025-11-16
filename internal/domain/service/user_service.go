@@ -8,6 +8,6 @@ import (
 
 type UserService interface {
 	GetUsers(ctx context.Context, req *request.PaginationRequest) (*response.PaginatedUsers, error)
-	GetUserByID(ctx context.Context, id int64) (*response.UserResponse, error)
+	GetUserByID(ctx context.Context, id string) (*response.UserResponse, error)
 	CreateUser(ctx context.Context, req *request.CreateUserRequest) (*response.UserResponse, error)
 }

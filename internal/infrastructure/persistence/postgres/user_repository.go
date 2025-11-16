@@ -19,9 +19,8 @@ func NewUserRepository(db *sqlx.DB) repository.UserRepository {
 
 func (r *userRepository) FindAll(ctx context.Context, limit, offset int) ([]*entity.User, error) {
 	query := `
-        SELECT id, username, email, full_name, avatar, is_active, created_at, updated_at
+        SELECT id, username, email, display_name, avatar_url, is_active, created_at, updated_at
         FROM users
-        WHERE deleted_at IS NULL
         ORDER BY created_at DESC
         LIMIT $1 OFFSET $2
     `
@@ -36,7 +35,7 @@ func (r *userRepository) FindAll(ctx context.Context, limit, offset int) ([]*ent
 }
 
 func (r *userRepository) Count(ctx context.Context) (int64, error) {
-	query := `SELECT COUNT(*) FROM users WHERE deleted_at IS NULL`
+	query := `SELECT COUNT(*) FROM users`
 
 	var count int64
 	err := r.db.GetContext(ctx, &count, query)
@@ -47,11 +46,11 @@ func (r *userRepository) Count(ctx context.Context) (int64, error) {
 	return count, nil
 }
 
-func (r *userRepository) FindByID(ctx context.Context, id int64) (*entity.User, error) {
+func (r *userRepository) FindByID(ctx context.Context, id string) (*entity.User, error) {
 	query := `
-        SELECT id, username, email, full_name, avatar, is_active, created_at, updated_at
+        SELECT id, username, email, display_name, avatar_url, is_active, created_at, updated_at
         FROM users
-        WHERE id = $1 AND deleted_at IS NULL
+        WHERE id = $1
     `
 
 	var user entity.User
@@ -65,9 +64,9 @@ func (r *userRepository) FindByID(ctx context.Context, id int64) (*entity.User, 
 
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*entity.User, error) {
 	query := `
-        SELECT id, username, email, password, full_name, avatar, is_active, created_at, updated_at
+        SELECT id, username, email, password_hash, display_name, avatar_url, is_active, created_at, updated_at
         FROM users
-        WHERE email = $1 AND deleted_at IS NULL
+        WHERE email = $1
     `
 
 	var user entity.User
@@ -81,14 +80,14 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*entity
 
 func (r *userRepository) Create(ctx context.Context, user *entity.User) error {
 	query := `
-        INSERT INTO users (username, email, password, full_name, avatar, is_active)
+        INSERT INTO users (username, email, password_hash, display_name, avatar_url, is_active)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING id, created_at, updated_at
     `
 
 	err := r.db.QueryRowContext(
 		ctx, query,
-		user.Username, user.Email, user.Password, user.FullName, user.Avatar, user.IsActive,
+		user.Username, user.Email, user.PasswordHash, user.DisplayName, user.AvatarURL, user.IsActive,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
@@ -101,14 +100,14 @@ func (r *userRepository) Create(ctx context.Context, user *entity.User) error {
 func (r *userRepository) Update(ctx context.Context, user *entity.User) error {
 	query := `
         UPDATE users
-        SET username = $1, email = $2, full_name = $3, avatar = $4, is_active = $5, updated_at = NOW()
-        WHERE id = $6 AND deleted_at IS NULL
+        SET username = $1, email = $2, display_name = $3, avatar_url = $4, is_active = $5, updated_at = NOW()
+        WHERE id = $6
         RETURNING updated_at
     `
 
 	err := r.db.QueryRowContext(
 		ctx, query,
-		user.Username, user.Email, user.FullName, user.Avatar, user.IsActive, user.ID,
+		user.Username, user.Email, user.DisplayName, user.AvatarURL, user.IsActive, user.ID,
 	).Scan(&user.UpdatedAt)
 
 	if err != nil {
@@ -119,7 +118,7 @@ func (r *userRepository) Update(ctx context.Context, user *entity.User) error {
 }
 
 func (r *userRepository) Delete(ctx context.Context, id int64) error {
-	query := `UPDATE users SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL`
+	query := `UPDATE users SET deleted_at = NOW() WHERE id = $1`
 
 	result, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {

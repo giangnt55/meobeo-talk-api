@@ -6,7 +6,7 @@ import (
 )
 
 type UserResponse struct {
-	ID        int64     `json:"id"`
+	ID        string    `json:"id"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
 	FullName  string    `json:"full_name"`
@@ -25,8 +25,8 @@ func ToUserResponse(user *entity.User) *UserResponse {
 		ID:        user.ID,
 		Username:  user.Username,
 		Email:     user.Email,
-		FullName:  user.FullName,
-		Avatar:    user.Avatar,
+		FullName:  *user.DisplayName,
+		Avatar:    user.AvatarURL,
 		IsActive:  user.IsActive,
 		CreatedAt: user.CreatedAt,
 	}
